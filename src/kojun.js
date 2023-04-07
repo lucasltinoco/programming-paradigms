@@ -1,6 +1,6 @@
 function findEmptyLocation(arr, l) {
-  for (let row = 0; row < 10; row++) {
-    for (let col = 0; col < 10; col++) {
+  for (let row = 0; row < arr.length; row++) {
+    for (let col = 0; col < arr.length; col++) {
       if (arr[row][col] === 0) {
         l[0] = row;
         l[1] = col;
@@ -20,8 +20,8 @@ function usedInSameRegionOrIsBiggerThanRegionSize(
 ) {
   const numRegion = regionsArr[row][col];
   let regionCellsCount = 0;
-  for (let row = 0; row < 10; row++) {
-    for (let col = 0; col < 10; col++) {
+  for (let row = 0; row < arr.length; row++) {
+    for (let col = 0; col < arr.length; col++) {
       const loopNum = arr[row][col];
       const loopNumRegion = regionsArr[row][col];
       if (loopNum === num && loopNumRegion === numRegion) {
@@ -92,7 +92,7 @@ function solveKojun(arr, regionsArr) {
   let row = l[0];
   let col = l[1];
 
-  for (let num = 1; num <= 10; num++) {
+  for (let num = 1; num <= arr.length; num++) {
     if (checkLocationIsSafe(arr, row, col, num, regionsArr)) {
       arr[row][col] = num;
 

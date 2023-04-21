@@ -167,41 +167,59 @@ function checkLocationIsSafe(arr, row, col, num, regionsArr) {
   );
 }
 
-function solveKojun(arr, regionsArr) {
-  let l = [0, 0];
+function generateUpdatedMatrix(matrix, row, col, num) {
+  const newMatrix = matrix.map((rowArr, rowIndex) =>
+    rowIndex === row
+      ? rowArr.map((item, colIndex) => (colIndex === col ? num : item))
+      : rowArr
+  );
+  return newMatrix;
+}
 
-  if (!findEmptyLocation(arr, l)) {
-    // Base case: the array is filled, return true
-    return true;
+// Define a recursive helper function that tries to fill the current cell with a number
+function fillCellWithNumber(arr, row, col, num, regionsArr) {
+  const locationIsSafe = checkLocationIsSafe(arr, row, col, num, regionsArr);
+
+  if (locationIsSafe) {
+    const resultArray = solveKojun(generateUpdatedMatrix(arr, row, col, num), regionsArr);
+    if (resultArray) {
+      // The puzzle is solved, return true
+      return resultArray;
+    }
   }
 
-  let row = l[0];
-  let col = l[1];
+  // Try the next number if the current one didn't work
+  if (num < arr.length) {
+    return fillCellWithNumber(
+      generateUpdatedMatrix(arr, row, col, 0),
+      row,
+      col,
+      num + 1,
+      regionsArr
+    );
+  }
 
-  // Define a recursive helper function that tries to fill the current cell with a number
-  function fillCellWithNumber(num) {
-    if (checkLocationIsSafe(arr, row, col, num, regionsArr)) {
-      arr[row][col] = num;
+  // None of the numbers from 1 to the length of the array worked in this cell
+  return null;
+}
 
-      if (solveKojun(arr, regionsArr)) {
-        // The puzzle is solved, return true
-        return true;
-      }
+function solveKojun(arr, regionsArr) {
+  const initialLocation = [0, 0];
+  const emptyLocation = findEmptyLocation(arr, initialLocation);
 
-      arr[row][col] = 0;
-    }
-
-    // Try the next number if the current one didn't work
-    if (num < arr.length) {
-      return fillCellWithNumber(num + 1);
-    }
-
-    // None of the numbers from 1 to the length of the array worked in this cell
-    return false;
+  if (!emptyLocation) {
+    // Base case: the array is filled, return true
+    return arr;
   }
 
   // Call the helper function with the initial number 1
-  return fillCellWithNumber(1);
+  return fillCellWithNumber(
+    arr,
+    emptyLocation[0],
+    emptyLocation[1],
+    1,
+    regionsArr
+  );
 }
 
 module.exports = solveKojun;

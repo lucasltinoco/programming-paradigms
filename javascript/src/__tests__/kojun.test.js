@@ -1,7 +1,7 @@
 const solveKojun = require("../kojun");
 
 test("10x10", () => {
-  let valuesInputGrid = [
+  const valuesInputGrid = [
     [5, 0, 2, 0, 2, 0, 3, 1, 3, 1],
     [0, 4, 0, 1, 0, 5, 0, 5, 0, 4],
     [7, 5, 1, 7, 0, 0, 3, 1, 3, 0],
@@ -13,6 +13,7 @@ test("10x10", () => {
     [4, 0, 3, 0, 4, 0, 0, 0, 0, 3],
     [0, 1, 0, 2, 0, 6, 2, 0, 2, 1]
   ];
+  const valuesInputGridCopy = valuesInputGrid;
   const regionsInputGrid = [
     [1, 5, 5, 5, 9, 9, 9, 9, 20, 20],
     [1, 1, 1, 5, 6, 6, 13, 13, 20, 13],
@@ -25,6 +26,7 @@ test("10x10", () => {
     [4, 4, 8, 8, 8, 8, 17, 19, 19, 23],
     [4, 4, 4, 8, 8, 8, 17, 17, 23, 23]
   ];
+  const regionsInputGridCopy = regionsInputGrid;
   const solution = [
     [5, 3, 2, 4, 2, 4, 3, 1, 3, 1],
     [2, 4, 3, 1, 3, 5, 6, 5, 2, 4],
@@ -38,12 +40,14 @@ test("10x10", () => {
     [3, 1, 5, 2, 1, 6, 2, 1, 2, 1]
   ];
 
-  solveKojun(valuesInputGrid, regionsInputGrid);
-  expect(valuesInputGrid).toStrictEqual(solution);
+  const solved = solveKojun(valuesInputGrid, regionsInputGrid);
+  expect(solved).toStrictEqual(solution);
+  expect(valuesInputGrid).toStrictEqual(valuesInputGridCopy);
+  expect(regionsInputGrid).toStrictEqual(regionsInputGridCopy);
 });
 
 test("12x12", () => {
-  let valuesInputGrid = [
+  const valuesInputGrid = [
     [2, 0, 6, 3, 5, 4, 0, 0, 3, 0, 0, 2],
     [0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],
     [0, 1, 0, 4, 2, 3, 0, 4, 0, 0, 1, 0],
@@ -57,6 +61,7 @@ test("12x12", () => {
     [0, 0, 3, 0, 0, 5, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 2, 4, 0, 1, 0, 0, 4, 1, 0]
   ];
+  const valuesInputGridCopy = valuesInputGrid;
   const regionsInputGrid = [
     [1, 1, 1, 1, 12, 12, 12, 22, 22, 22, 30, 30],
     [1, 1, 1, 12, 12, 17, 18, 18, 25, 27, 27, 32],
@@ -71,6 +76,7 @@ test("12x12", () => {
     [5, 5, 11, 11, 11, 11, 11, 13, 24, 29, 29, 34],
     [5, 8, 8, 14, 14, 14, 14, 24, 24, 24, 29, 29]
   ];
+  const regionsInputGridCopy = regionsInputGrid;
   const solution = [
     [2, 7, 6, 3, 5, 4, 6, 1, 3, 2, 1, 2],
     [1, 4, 5, 1, 3, 1, 2, 5, 2, 4, 3, 4],
@@ -86,12 +92,14 @@ test("12x12", () => {
     [1, 2, 1, 2, 4, 3, 1, 2, 1, 4, 1, 3]
   ];
 
-  solveKojun(valuesInputGrid, regionsInputGrid);
-  expect(valuesInputGrid).toStrictEqual(solution);
+  const solved = solveKojun(valuesInputGrid, regionsInputGrid);
+  expect(solved).toStrictEqual(solution);
+  expect(valuesInputGrid).toStrictEqual(valuesInputGridCopy);
+  expect(regionsInputGrid).toStrictEqual(regionsInputGridCopy);
 });
 
 test("14x14", () => {
-  let valuesInputGrid = [
+  const valuesInputGrid = [
     [3, 1, 2, 6, 0, 4, 2, 0, 5, 0, 2, 4, 0, 4],
     [0, 4, 0, 0, 4, 0, 0, 0, 0, 6, 0, 2, 0, 2],
     [0, 0, 0, 0, 3, 5, 4, 0, 0, 3, 0, 7, 6, 1],
@@ -107,6 +115,7 @@ test("14x14", () => {
     [0, 0, 0, 0, 3, 0, 0, 5, 0, 1, 2, 0, 0, 0],
     [0, 0, 6, 2, 0, 5, 0, 0, 1, 3, 0, 3, 0, 4]
   ];
+  const valuesInputGridCopy = valuesInputGrid;
   const regionsInputGrid = [
     [1, 1, 1, 1, 1, 18, 18, 24, 29, 29, 29, 36, 36, 44],
     [2, 2, 2, 1, 1, 18, 18, 18, 30, 29, 36, 36, 44, 44],
@@ -123,6 +132,7 @@ test("14x14", () => {
     [7, 9, 9, 12, 12, 20, 20, 20, 31, 31, 39, 39, 43, 43],
     [7, 9, 12, 12, 12, 12, 20, 28, 28, 28, 28, 43, 43, 43]
   ];
+  const regionsInputGridCopy = regionsInputGrid;
   const solution = [
     [3, 1, 2, 6, 7, 4, 2, 1, 5, 7, 2, 4, 1, 4],
     [5, 4, 3, 5, 4, 3, 1, 5, 2, 6, 3, 2, 3, 2],
@@ -140,12 +150,14 @@ test("14x14", () => {
     [1, 2, 6, 2, 1, 5, 1, 2, 1, 3, 4, 3, 1, 4]
   ];
 
-  solveKojun(valuesInputGrid, regionsInputGrid);
-  expect(valuesInputGrid).toStrictEqual(solution);
+  const solved = solveKojun(valuesInputGrid, regionsInputGrid);
+  expect(solved).toStrictEqual(solution);
+  expect(valuesInputGrid).toStrictEqual(valuesInputGridCopy);
+  expect(regionsInputGrid).toStrictEqual(regionsInputGridCopy);
 });
 
 test("17x17", () => {
-  let valuesInputGrid = [
+  const valuesInputGrid = [
     [0, 3, 0, 0, 0, 0, 5, 1, 0, 3, 1, 0, 7, 3, 0, 4, 2],
     [6, 0, 0, 0, 0, 3, 0, 0, 0, 0, 2, 5, 0, 0, 0, 3, 4],
     [5, 0, 0, 1, 5, 0, 2, 0, 0, 5, 0, 0, 4, 1, 0, 0, 0],
@@ -164,6 +176,7 @@ test("17x17", () => {
     [2, 0, 2, 0, 4, 0, 0, 0, 1, 0, 0, 1, 0, 4, 0, 0, 0],
     [1, 7, 6, 5, 0, 4, 1, 7, 2, 3, 1, 2, 3, 0, 2, 0, 0]
   ];
+  const valuesInputGridCopy = valuesInputGrid;
   const regionsInputGrid = [
     [1, 2, 2, 17, 20, 20, 28, 28, 28, 28, 44, 44, 44, 44, 44, 44, 44],
     [2, 2, 2, 17, 17, 20, 28, 31, 31, 38, 38, 39, 49, 49, 49, 49, 61],
@@ -183,6 +196,7 @@ test("17x17", () => {
     [8, 11, 16, 16, 24, 24, 25, 35, 35, 43, 43, 46, 54, 56, 56, 60, 63],
     [8, 8, 8, 8, 25, 25, 25, 25, 25, 25, 43, 43, 43, 56, 56, 60, 60]
   ];
+  const regionsInputGridCopy = regionsInputGrid;
   const solution = [
     [1, 3, 7, 3, 2, 4, 5, 1, 6, 3, 1, 6, 7, 3, 5, 4, 2],
     [6, 2, 4, 2, 4, 3, 4, 3, 7, 1, 2, 5, 6, 2, 7, 3, 4],
@@ -203,6 +217,8 @@ test("17x17", () => {
     [1, 7, 6, 5, 6, 4, 1, 7, 2, 3, 1, 2, 3, 1, 2, 1, 3]
   ];
 
-  solveKojun(valuesInputGrid, regionsInputGrid);
-  expect(valuesInputGrid).toStrictEqual(solution);
+  const solved = solveKojun(valuesInputGrid, regionsInputGrid);
+  expect(solved).toStrictEqual(solution);
+  expect(valuesInputGrid).toStrictEqual(valuesInputGridCopy);
+  expect(regionsInputGrid).toStrictEqual(regionsInputGridCopy);
 });

@@ -2,45 +2,23 @@ function findEmptyLocationRecursive(arr, location) {
   const [row, col] = location;
 
   if (row >= arr.length) {
-    return false;
+    return [false, location];
   }
 
   if (col >= arr.length) {
-    location[0] = row + 1;
-    location[1] = 0;
-    return findEmptyLocationRecursive(arr, location);
+    return findEmptyLocationRecursive(arr, [row + 1, 0]);
   }
 
   if (arr[row][col] === 0) {
-    return true;
+    return [true, location];
   }
 
-  location[1] = col + 1;
-  return findEmptyLocationRecursive(arr, location);
+  return findEmptyLocationRecursive(arr, [row, col + 1]);
 }
 
 function findEmptyLocation(arr, location) {
-  const found = findEmptyLocationRecursive(arr, location);
-  return found ? location : [-1];
-}
-
-function countCellsInRegion(
-  regionsArr,
-  numRegion,
-  row = 0,
-  col = 0,
-  count = 0
-) {
-  if (row >= regionsArr.length) {
-    return count;
-  }
-  if (col >= regionsArr.length) {
-    return countCellsInRegion(regionsArr, numRegion, row + 1, 0, count);
-  }
-  if (regionsArr[row][col] === numRegion) {
-    count++;
-  }
-  return countCellsInRegion(regionsArr, numRegion, row, col + 1, count);
+  const [found, foundLocation] = findEmptyLocationRecursive(arr, location);
+  return found ? foundLocation : [-1];
 }
 
 function usedInSameRegionRecursive(
@@ -99,6 +77,25 @@ function isBiggerThanRegionSize(num, regionCellsCount) {
   return regionCellsCount < num;
 }
 
+function countCellsInRegion(
+  regionsArr,
+  numRegion,
+  row = 0,
+  col = 0,
+  count = 0
+) {
+  if (row >= regionsArr.length) {
+    return count;
+  }
+  if (col >= regionsArr.length) {
+    return countCellsInRegion(regionsArr, numRegion, row + 1, 0, count);
+  }
+  if (regionsArr[row][col] === numRegion) {
+    return countCellsInRegion(regionsArr, numRegion, row, col + 1, count + 1);
+  }
+  return countCellsInRegion(regionsArr, numRegion, row, col + 1, count);
+}
+
 function usedInSameRegionOrIsBiggerThanRegionSize(
   arr,
   row,
@@ -127,7 +124,7 @@ function usedInOrthogonalCell(arr, row, col, num) {
   const topIsEqual = row > 0 && arr[row - 1][col] == num;
   const bottomIsEqual = row < arr.length - 1 && arr[row + 1][col] == num;
   const leftIsEqual = col > 0 && arr[row][col - 1] == num;
-  const rightIsEqual = row < arr.length - 1 && arr[row][col + 1] == num;
+  const rightIsEqual = col < arr.length - 1 && arr[row][col + 1] == num;
 
   return topIsEqual || bottomIsEqual || leftIsEqual || rightIsEqual;
 }

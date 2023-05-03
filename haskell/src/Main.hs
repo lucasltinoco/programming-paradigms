@@ -1,98 +1,5 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use zipWith" #-}
-{-# HLINT ignore "Use isJust" #-}
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Main (main) where
-
-findEmptyLocationRecursive :: [[Int]] -> [Int] -> (Bool, [Int])
-findEmptyLocationRecursive arr location@[row, col]
-  | row >= length arr = (False, location)
-  | col >= length arr = findEmptyLocationRecursive arr [row + 1, 0]
-  | arr !! row !! col == 0 = (True, location)
-  | otherwise = findEmptyLocationRecursive arr [row, col + 1]
-
-findEmptyLocation :: [[Int]] -> [Int] -> [Int]
-findEmptyLocation arr location = if found then foundLocation else [-1]
-  where (found, foundLocation) = findEmptyLocationRecursive arr location
-
-usedInSameRegionRecursive :: [[Int]] -> Int -> Int -> Int -> Int -> Int -> Int -> [[Int]] -> Bool
-usedInSameRegionRecursive arr row col num numRegion i j regionsArr
-  | i >= length arr = False
-  | j >= length arr = usedInSameRegionRecursive arr row col num numRegion (i + 1) 0 regionsArr
-  | i == row && j == col = usedInSameRegionRecursive arr row col num numRegion i (j + 1) regionsArr
-  | (arr !! i !! j) == num && (regionsArr !! i !! j) == numRegion = True
-  | otherwise = usedInSameRegionRecursive arr row col num numRegion i (j + 1) regionsArr
-
-isBiggerThanRegionSize :: Int -> Int -> Bool
-isBiggerThanRegionSize num regionCellsCount = regionCellsCount < num
-
-countCellsInRegion :: [[Int]] -> Int -> Int -> Int -> Int -> Int
-countCellsInRegion regionsArr numRegion row col count
-  | row >= length regionsArr = count
-  | col >= length regionsArr = countCellsInRegion regionsArr numRegion (row + 1) 0 count
-  | regionsArr !! row !! col == numRegion = countCellsInRegion regionsArr numRegion row (col + 1) (count + 1)
-  | otherwise = countCellsInRegion regionsArr numRegion row (col + 1) count
-
-usedInSameRegionOrIsBiggerThanRegionSize :: [[Int]] -> Int -> Int -> Int -> [[Int]] -> Bool
-usedInSameRegionOrIsBiggerThanRegionSize arr row col num regionsArr =
-  let numRegion = regionsArr !! row !! col
-      regionCellsCount = countCellsInRegion regionsArr numRegion 0 0 0
-  in usedInSameRegionRecursive arr row col num numRegion 0 0 regionsArr || isBiggerThanRegionSize num regionCellsCount
-
-usedInOrthogonalCell :: [[Int]] -> Int -> Int -> Int -> Bool
-usedInOrthogonalCell arr row col num =
-  let topIsEqual = (row > 0) && (arr !! (row - 1) !! col == num)
-      bottomIsEqual = (row < (length arr - 1)) && (arr !! (row + 1) !! col == num)
-      leftIsEqual = (col > 0) && (arr !! row !! (col - 1) == num)
-      rightIsEqual = (col < (length arr - 1)) && (arr !! row !! (col + 1) == num)
-  in topIsEqual || bottomIsEqual || leftIsEqual || rightIsEqual
-
--- TODO: refactor this function as it's implemented in JavaScript. It's not checking the bottom cell and top cell correctly.
-topCellInTheSameRegionIsLowerOrBottomIsBiggerIfExists :: [[Int]] -> Int -> Int -> Int -> [[Int]] -> Bool
-topCellInTheSameRegionIsLowerOrBottomIsBiggerIfExists arr row col num regionsArr =
-  let numRegion = regionsArr !! row !! col
-      topNum = if row > 0 then Just (arr !! (row - 1) !! col) else Nothing
-      topNumRegion = if row > 0 then Just (regionsArr !! (row - 1) !! col) else Nothing
-      bottomNum = if row < length arr - 1 then Just (arr !! (row + 1) !! col) else Nothing
-      bottomNumRegion = if row < length arr - 1 then Just (regionsArr !! (row + 1) !! col) else Nothing
-  in case (topNumRegion, topNum, bottomNumRegion, bottomNum) of
-      (Just r1, Just n1, _, _) | r1 == numRegion && n1 < num -> True
-      (_, _, Just r2, Just n2) | r2 == numRegion && n2 > num -> True
-      _ -> False
-
-
-checkLocationIsSafe :: [[Int]] -> Int -> Int -> Int -> [[Int]] -> Bool
-checkLocationIsSafe arr row col num regionsArr =
-  not (usedInSameRegionOrIsBiggerThanRegionSize arr row col num regionsArr) &&
-  not (usedInOrthogonalCell arr row col num) &&
-  not (topCellInTheSameRegionIsLowerOrBottomIsBiggerIfExists arr row col num regionsArr)
-
-generateUpdatedMatrix :: [[Int]] -> Int -> Int -> Int -> [[Int]]
-generateUpdatedMatrix matrix row col num =
-  let newRowArr = map (\(item, colIndex) -> if colIndex == col then num else item) $ zip (matrix !! row) [0..]
-  in map (\(rowArr, rowIndex) -> if rowIndex == row then newRowArr else rowArr) $ zip matrix [0..]
-
-fillCellWithNumber :: [[Int]] -> Int -> Int -> Int -> [[Int]] -> Maybe [[Int]]
-fillCellWithNumber arr row col num regionsArr
-  | num > length arr = Nothing
-  | checkLocationIsSafe arr row col num regionsArr =
-      let resultArray = solveKojun (generateUpdatedMatrix arr row col num) regionsArr
-      in
-        if resultArray /= Nothing then
-          resultArray
-        else
-          fillCellWithNumber (generateUpdatedMatrix arr row col 0) row col (num + 1) regionsArr
-  | otherwise =
-      fillCellWithNumber (generateUpdatedMatrix arr row col 0) row col (num + 1) regionsArr
-
-solveKojun :: [[Int]] -> [[Int]] -> Maybe [[Int]]
-solveKojun arr regionsArr =
-  let emptyLocation = findEmptyLocation arr [0, 0]
-  in
-    if length emptyLocation == 2 then
-      fillCellWithNumber arr (head emptyLocation) (emptyLocation !! 1) 1 regionsArr
-    else
-      Just arr
+module Main where
+import Kojun (solveKojun)
 
 input6x6 :: [[Int]]
 input6x6 = [
@@ -120,6 +27,39 @@ solution6x6 = [
     [3, 1, 2, 1, 2, 1],
     [1, 2, 3, 5, 4, 2],
     [2, 1, 2, 1, 3, 1]]
+
+input8x8 :: [[Int]]
+input8x8 = [
+    [2, 5, 0, 0, 3, 0, 0, 0],
+    [0, 0, 6, 0, 0, 0, 0, 0],
+    [0, 0, 5, 0, 5, 2, 0, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0],
+    [0, 0, 1, 0, 4, 0, 0, 0],
+    [3, 0, 2, 0, 0, 4, 0, 0],
+    [0, 0, 0, 6, 0, 0, 0, 0],
+    [0, 0, 0, 0, 4, 0, 3, 2]]
+
+regions8x8 :: [[Int]]
+regions8x8 = [
+    [1, 4, 4, 4, 4, 12, 14, 14],
+    [1, 1, 7, 4, 12, 12, 15, 15],
+    [2, 5, 7, 10, 12, 12, 16, 16],
+    [2, 6, 7, 7, 7, 12, 16, 16],
+    [2, 6, 7, 11, 11, 11, 16, 17],
+    [3, 6, 8, 11, 8, 8, 17, 17],
+    [3, 3, 8, 8, 8, 13, 13, 17],
+    [3, 3, 9, 9, 13, 13, 13, 17]]
+
+solution8x8 :: [[Int]]
+solution8x8 = [
+    [2, 5, 1, 4, 3, 4, 1, 2],
+    [1, 3, 6, 2, 6, 3, 2, 1],
+    [3, 1, 5, 1, 5, 2, 5, 2],
+    [2, 3, 4, 2, 3, 1, 4, 1],
+    [1, 2, 1, 3, 4, 2, 3, 5],
+    [3, 1, 2, 1, 5, 4, 1, 4],
+    [2, 5, 1, 6, 3, 2, 5, 3],
+    [1, 4, 2, 1, 4, 1, 3, 2]]
 
 input10x10 :: [[Int]]
 input10x10 = [
@@ -160,7 +100,167 @@ solution10x10 = [
     [4, 2, 3, 5, 4, 7, 3, 2, 1, 3],
     [3, 1, 5, 2, 1, 6, 2, 1, 2, 1]]
 
+input12x12 :: [[Int]]
+input12x12 = [
+    [2, 0, 6, 3, 5, 4, 0, 0, 3, 0, 0, 2],
+    [0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],
+    [0, 1, 0, 4, 2, 3, 0, 4, 0, 0, 1, 0],
+    [0, 0, 6, 0, 7, 0, 7, 0, 2, 7, 0, 0],
+    [0, 2, 0, 0, 0, 2, 5, 4, 0, 0, 0, 0],
+    [0, 0, 0, 0, 3, 0, 0, 1, 3, 0, 0, 0],
+    [4, 2, 0, 6, 5, 0, 5, 0, 0, 2, 0, 0],
+    [7, 6, 0, 4, 0, 2, 0, 3, 7, 6, 5, 0],
+    [0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0],
+    [0, 0, 0, 7, 4, 3, 0, 6, 0, 0, 3, 0],
+    [0, 0, 3, 0, 0, 5, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 4, 0, 1, 0, 0, 4, 1, 0]]
+
+regions12x12 :: [[Int]]
+regions12x12 = [
+    [1, 1, 1, 1, 12, 12, 12, 22, 22, 22, 30, 30],
+    [1, 1, 1, 12, 12, 17, 18, 18, 25, 27, 27, 32],
+    [2, 2, 2, 9, 12, 18, 18, 18, 25, 27, 27, 32],
+    [2, 3, 9, 9, 9, 9, 19, 23, 23, 26, 26, 32],
+    [2, 3, 10, 9, 15, 15, 19, 19, 19, 28, 26, 32],
+    [3, 3, 6, 9, 15, 15, 19, 19, 19, 28, 26, 33],
+    [3, 6, 6, 6, 16, 16, 20, 20, 26, 26, 26, 33],
+    [4, 4, 4, 6, 16, 16, 20, 20, 20, 20, 31, 31],
+    [4, 4, 4, 6, 16, 13, 21, 21, 21, 20, 31, 31],
+    [5, 7, 4, 13, 13, 13, 13, 13, 21, 21, 31, 34],
+    [5, 5, 11, 11, 11, 11, 11, 13, 24, 29, 29, 34],
+    [5, 8, 8, 14, 14, 14, 14, 24, 24, 24, 29, 29]]
+
+solution12x12 :: [[Int]]
+solution12x12 = [
+    [2, 7, 6, 3, 5, 4, 6, 1, 3, 2, 1, 2],
+    [1, 4, 5, 1, 3, 1, 2, 5, 2, 4, 3, 4],
+    [5, 1, 2, 4, 2, 3, 1, 4, 1, 2, 1, 3],
+    [4, 3, 6, 3, 7, 5, 7, 1, 2, 7, 6, 2],
+    [3, 2, 1, 2, 4, 2, 5, 4, 6, 2, 5, 1],
+    [5, 1, 5, 1, 3, 1, 2, 1, 3, 1, 4, 2],
+    [4, 2, 1, 6, 5, 4, 5, 4, 1, 2, 3, 1],
+    [7, 6, 5, 4, 3, 2, 1, 3, 7, 6, 5, 2],
+    [1, 3, 4, 3, 1, 5, 3, 4, 5, 2, 4, 1],
+    [3, 1, 2, 7, 4, 3, 2, 6, 2, 1, 3, 2],
+    [2, 4, 3, 1, 2, 5, 4, 1, 3, 2, 4, 1],
+    [1, 2, 1, 2, 4, 3, 1, 2, 1, 4, 1, 3]]
+
+input14x14 :: [[Int]]
+input14x14 = [
+    [3, 1, 2, 6, 0, 4, 2, 0, 5, 0, 2, 4, 0, 4],
+    [0, 4, 0, 0, 4, 0, 0, 0, 0, 6, 0, 2, 0, 2],
+    [0, 0, 0, 0, 3, 5, 4, 0, 0, 3, 0, 7, 6, 1],
+    [2, 0, 0, 6, 7, 0, 1, 0, 0, 0, 0, 3, 4, 0],
+    [1, 0, 4, 3, 0, 6, 0, 0, 6, 0, 0, 0, 0, 0],
+    [5, 0, 0, 7, 0, 4, 0, 3, 4, 0, 2, 0, 2, 0],
+    [0, 4, 1, 6, 0, 0, 3, 0, 0, 0, 0, 0, 0, 4],
+    [2, 0, 0, 0, 0, 1, 0, 0, 5, 0, 2, 0, 0, 0],
+    [6, 2, 0, 0, 4, 0, 0, 3, 0, 3, 0, 0, 6, 0],
+    [4, 0, 2, 5, 0, 6, 0, 1, 0, 0, 4, 0, 2, 7],
+    [0, 3, 0, 0, 0, 0, 0, 0, 5, 3, 0, 0, 0, 4],
+    [0, 0, 5, 0, 0, 0, 3, 0, 3, 0, 0, 0, 5, 0],
+    [0, 0, 0, 0, 3, 0, 0, 5, 0, 1, 2, 0, 0, 0],
+    [0, 0, 6, 2, 0, 5, 0, 0, 1, 3, 0, 3, 0, 4]]
+
+regions14x14 :: [[Int]]
+regions14x14 = [
+    [1, 1, 1, 1, 1, 18, 18, 24, 29, 29, 29, 36, 36, 44],
+    [2, 2, 2, 1, 1, 18, 18, 18, 30, 29, 36, 36, 44, 44],
+    [2, 3, 2, 10, 10, 10, 10, 21, 30, 29, 37, 37, 37, 44],
+    [3, 3, 10, 10, 13, 10, 21, 21, 29, 29, 38, 37, 37, 45],
+    [3, 3, 4, 13, 13, 13, 22, 25, 25, 25, 38, 37, 37, 45],
+    [4, 4, 4, 4, 13, 13, 22, 26, 25, 25, 25, 40, 45, 45],
+    [5, 5, 4, 4, 13, 19, 19, 26, 26, 32, 33, 41, 41, 45],
+    [5, 5, 5, 14, 15, 19, 15, 27, 27, 33, 33, 42, 41, 45],
+    [6, 8, 8, 11, 15, 15, 15, 27, 27, 33, 33, 42, 42, 45],
+    [6, 6, 11, 11, 11, 11, 23, 27, 27, 34, 35, 42, 42, 42],
+    [6, 6, 11, 11, 16, 17, 23, 20, 31, 35, 35, 35, 46, 42],
+    [6, 9, 9, 12, 17, 17, 20, 20, 31, 31, 39, 35, 35, 47],
+    [7, 9, 9, 12, 12, 20, 20, 20, 31, 31, 39, 39, 43, 43],
+    [7, 9, 12, 12, 12, 12, 20, 28, 28, 28, 28, 43, 43, 43]]
+
+solution14x14 :: [[Int]]
+solution14x14 = [
+    [3, 1, 2, 6, 7, 4, 2, 1, 5, 7, 2, 4, 1, 4],
+    [5, 4, 3, 5, 4, 3, 1, 5, 2, 6, 3, 2, 3, 2],
+    [1, 5, 2, 7, 3, 5, 4, 3, 1, 3, 5, 7, 6, 1],
+    [2, 4, 1, 6, 7, 2, 1, 2, 4, 1, 2, 3, 4, 7],
+    [1, 3, 4, 3, 5, 6, 2, 1, 6, 5, 1, 2, 1, 6],
+    [5, 2, 3, 7, 2, 4, 1, 3, 4, 3, 2, 1, 2, 5],
+    [3, 4, 1, 6, 1, 2, 3, 1, 2, 1, 5, 2, 3, 4],
+    [2, 1, 5, 1, 5, 1, 2, 6, 5, 4, 2, 5, 1, 3],
+    [6, 2, 1, 7, 4, 3, 1, 3, 4, 3, 1, 3, 6, 1],
+    [4, 5, 2, 5, 3, 6, 2, 1, 2, 1, 4, 1, 2, 7],
+    [2, 3, 1, 4, 1, 3, 1, 7, 5, 3, 1, 6, 1, 4],
+    [1, 4, 5, 7, 2, 1, 3, 6, 3, 4, 3, 2, 5, 1],
+    [2, 3, 1, 4, 3, 4, 2, 5, 2, 1, 2, 1, 2, 5],
+    [1, 2, 6, 2, 1, 5, 1, 2, 1, 3, 4, 3, 1, 4]]
+
+input17x17 :: [[Int]]
+input17x17 = [
+    [0, 3, 0, 0, 0, 0, 5, 1, 0, 3, 1, 0, 7, 3, 0, 4, 2],
+    [6, 0, 0, 0, 0, 3, 0, 0, 0, 0, 2, 5, 0, 0, 0, 3, 4],
+    [5, 0, 0, 1, 5, 0, 2, 0, 0, 5, 0, 0, 4, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7, 0, 6, 0, 4, 0, 6],
+    [6, 0, 0, 4, 3, 0, 0, 2, 0, 0, 0, 0, 2, 1, 0, 4, 0],
+    [0, 0, 0, 0, 0, 5, 0, 0, 3, 0, 4, 0, 5, 0, 5, 0, 2],
+    [1, 0, 0, 0, 0, 3, 0, 0, 0, 5, 0, 3, 0, 0, 4, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2],
+    [0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 4, 0, 0],
+    [0, 4, 0, 0, 4, 0, 3, 0, 3, 0, 5, 0, 2, 0, 2, 0, 0],
+    [5, 0, 2, 0, 3, 5, 0, 6, 0, 0, 0, 0, 0, 5, 0, 3, 0],
+    [0, 0, 4, 2, 0, 0, 7, 0, 0, 7, 0, 0, 3, 0, 6, 5, 0],
+    [3, 0, 0, 1, 4, 0, 2, 4, 0, 0, 2, 0, 0, 0, 5, 0, 0],
+    [0, 1, 0, 6, 0, 2, 0, 0, 0, 3, 0, 5, 0, 0, 3, 6, 2],
+    [0, 0, 4, 0, 5, 6, 2, 0, 0, 0, 3, 0, 0, 1, 0, 4, 7],
+    [2, 0, 2, 0, 4, 0, 0, 0, 1, 0, 0, 1, 0, 4, 0, 0, 0],
+    [1, 7, 6, 5, 0, 4, 1, 7, 2, 3, 1, 2, 3, 0, 2, 0, 0]]
+
+regions17x17 :: [[Int]]
+regions17x17 = [
+    [1, 2, 2, 17, 20, 20, 28, 28, 28, 28, 44, 44, 44, 44, 44, 44, 44],
+    [2, 2, 2, 17, 17, 20, 28, 31, 31, 38, 38, 39, 49, 49, 49, 49, 61],
+    [2, 2, 12, 17, 18, 20, 28, 28, 31, 31, 31, 39, 49, 49, 49, 61, 61],
+    [3, 3, 12, 12, 18, 26, 29, 29, 31, 31, 39, 39, 50, 50, 50, 61, 62],
+    [4, 9, 10, 12, 18, 26, 30, 29, 29, 39, 39, 39, 50, 50, 50, 62, 62],
+    [4, 10, 10, 12, 18, 21, 30, 30, 32, 40, 40, 40, 40, 55, 55, 62, 62],
+    [4, 4, 13, 18, 18, 21, 21, 32, 32, 32, 45, 40, 40, 55, 55, 57, 62],
+    [5, 4, 13, 14, 21, 21, 21, 33, 36, 32, 45, 47, 51, 51, 55, 57, 57],
+    [5, 4, 14, 14, 22, 22, 23, 33, 36, 41, 41, 47, 52, 52, 57, 57, 58],
+    [5, 6, 14, 14, 23, 23, 23, 33, 36, 42, 42, 47, 47, 52, 52, 57, 58],
+    [6, 6, 6, 15, 15, 15, 23, 27, 36, 36, 42, 48, 48, 53, 52, 52, 58],
+    [7, 6, 15, 15, 15, 27, 27, 27, 36, 42, 42, 48, 53, 53, 58, 58, 58],
+    [7, 7, 16, 19, 19, 27, 27, 27, 37, 42, 42, 48, 53, 53, 59, 59, 59],
+    [7, 7, 16, 16, 19, 19, 24, 34, 37, 37, 46, 46, 54, 54, 59, 60, 59],
+    [8, 8, 16, 16, 24, 24, 24, 34, 34, 34, 46, 46, 54, 54, 60, 60, 60],
+    [8, 11, 16, 16, 24, 24, 25, 35, 35, 43, 43, 46, 54, 56, 56, 60, 63],
+    [8, 8, 8, 8, 25, 25, 25, 25, 25, 25, 43, 43, 43, 56, 56, 60, 60]]
+
+solution17x17 :: [[Int]]
+solution17x17 = [
+    [1, 3, 7, 3, 2, 4, 5, 1, 6, 3, 1, 6, 7, 3, 5, 4, 2],
+    [6, 2, 4, 2, 4, 3, 4, 3, 7, 1, 2, 5, 6, 2, 7, 3, 4],
+    [5, 1, 2, 1, 5, 1, 2, 7, 6, 5, 1, 3, 4, 1, 5, 2, 3],
+    [1, 2, 1, 5, 4, 2, 4, 3, 4, 2, 7, 2, 6, 5, 4, 1, 6],
+    [6, 1, 2, 4, 3, 1, 3, 2, 1, 4, 6, 1, 2, 1, 3, 4, 5],
+    [2, 3, 1, 3, 2, 5, 2, 1, 3, 1, 4, 6, 5, 2, 5, 3, 2],
+    [1, 5, 2, 6, 1, 3, 4, 2, 1, 5, 2, 3, 2, 1, 4, 6, 1],
+    [3, 4, 1, 4, 6, 2, 1, 3, 6, 4, 1, 4, 1, 2, 3, 5, 2],
+    [2, 3, 5, 3, 2, 1, 5, 2, 4, 1, 2, 3, 5, 6, 4, 3, 4],
+    [1, 4, 1, 2, 4, 2, 3, 1, 3, 6, 5, 1, 2, 4, 2, 1, 3],
+    [5, 3, 2, 6, 3, 5, 1, 6, 2, 5, 4, 3, 4, 5, 1, 3, 2],
+    [4, 1, 4, 2, 1, 3, 7, 5, 1, 7, 3, 2, 3, 4, 6, 5, 1],
+    [3, 5, 7, 1, 4, 1, 2, 4, 2, 1, 2, 1, 2, 1, 5, 1, 4],
+    [2, 1, 5, 6, 3, 2, 3, 2, 1, 3, 4, 5, 4, 5, 3, 6, 2],
+    [4, 3, 4, 3, 5, 6, 2, 1, 3, 4, 3, 2, 3, 1, 5, 4, 7],
+    [2, 1, 2, 1, 4, 1, 5, 2, 1, 5, 4, 1, 2, 4, 3, 2, 1],
+    [1, 7, 6, 5, 6, 4, 1, 7, 2, 3, 1, 2, 3, 1, 2, 1, 3]]
+
 main :: IO ()
 main = do
   print (solveKojun input6x6 regions6x6 == Just solution6x6)
+  print (solveKojun input8x8 regions8x8 == Just solution8x8)
   print (solveKojun input10x10 regions10x10 == Just solution10x10)
+  print (solveKojun input12x12 regions12x12 == Just solution12x12)
+  print (solveKojun input14x14 regions14x14 == Just solution14x14)
+  print (solveKojun input17x17 regions17x17 == Just solution17x17)

@@ -104,8 +104,8 @@ terminal. Para testar em Javascript, basta rodar `yarn test` no diretório
 ### Dificuldades encontradas
 
 Inicialmente, foi difícil implementar o código em Haskell após o ter solucionado
-em Javascript, pois a solução havia sido implementada de forma iterativa. Após essa
-dificuldade, o código em Javascript foi convertido para forma recursiva e
+em Javascript, pois a solução havia sido implementada de forma iterativa. Após
+essa dificuldade, o código em Javascript foi convertido para forma recursiva e
 imutável. Após essa refatoração ficou mais tranquilo de fazer a conversão,
 contudo foram encontrados obstáculos no debugging do código, pois a solução não
 funcionou imediatamente em Haskell. Para solucionar isto, as funções foram
@@ -113,3 +113,46 @@ analisadas e testadas na main, uma a uma, chegando ao resultado final.
 
 Intencionava-se, também, desenvolver uma suíte de testes com a biblioteca HUnit,
 similar ao que foi feito em Javascript, mas não foi possível configurá-la.
+
+## Projeto 2: Solução do Kojun em Clojure
+
+O segundo projeto também teve por objetivo solucionar o jogo Kojun, porém agora
+em Clojure, com o intuito de exercitar o paradigma funcional em outra linguagem.
+O código é muito parecido com o de Haskell, porém com algumas diferenças, visto
+que Clojure é uma linguagem baseada em Lisp. Aqui está um exemplo de código da
+função fill-dell-with-number em Clojure:
+
+```clojure
+(defn fill-cell-with-number [arr row col num regions-arr]
+  (if (> num (count arr))
+    nil
+    (let [location-is-safe (check-location-is-safe arr row col num regions-arr)]
+      (if location-is-safe
+        (let [result-array
+              (solve-kojun (generate-updated-matrix arr row col num) regions-arr)]
+          (if result-array
+            result-array
+            (fill-cell-with-number (generate-updated-matrix arr row col 0) row col (inc num) regions-arr)))
+        (fill-cell-with-number (generate-updated-matrix arr row col 0) row col (inc num) regions-arr)))))
+```
+
+### Como testar?
+
+Para testar em Clojure, basta executar `lein test` no diretório `/clojurep`. O
+programa irá executar os testes do arquivo `core_test.clj` para desafios em 6x6,
+8x8, 10x10, 12x12, 14x14 e 17x17, mostrando o resultado no terminal. Também é
+possível executar o programa principal para configurar chamada da função
+`solve-kojun` com os parâmetros desejados, basta executar `lein run` no
+diretório `/clojurep`.
+
+### Dificuldades encontradas
+
+Notoriamente, o desafio desta vez não foi implementar a lógica do algoritmo,
+visto que já havia sido feito em Haskell e Javascript. A dificuldade foi em
+configurar o ambiente de desenvolvimento, visto que Clojure é uma linguagem que
+não é tão popular quanto as outras e, portanto, não há muita documentação sobre.
+Após muita pesquisa, foi possível configurar o ambiente de desenvolvimento e
+implementar o algoritmo. Além disso, a adaptação a sintaxe baseada em Lisp e com
+muitos parênteses foi um pouco difícil, mas nada que não tenha sido superado. Em
+Clojure, porém, foi possível desenvolver uma suíte de testes assim como em
+Javascript.

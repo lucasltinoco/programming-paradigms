@@ -4,3 +4,5 @@ haskell/dist/build/haskell/haskell
 haskell/dist/build/haskell/haskell-tmp/Main.hi
 haskell/dist/build/haskell/haskell-tmp/Main.o
 .vscode/tasks.json
+.clj-kondo
+.lsp

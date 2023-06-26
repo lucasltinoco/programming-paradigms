@@ -156,3 +156,40 @@ implementar o algoritmo. Além disso, a adaptação a sintaxe baseada em Lisp e 
 muitos parênteses foi um pouco difícil, mas nada que não tenha sido superado. Em
 Clojure, porém, foi possível desenvolver uma suíte de testes assim como em
 Javascript.
+
+## Projeto 3: Solução do Kojun em Prolog
+
+O terceiro projeto teve por objetivo solucionar o jogo Kojun em Prolog, com o
+intuito de exercitar o paradigma lógico. O código é muito parecido com o de
+Haskell e Clojure, porém com algumas diferenças, visto que Prolog é uma
+linguagem baseada em lógica. A execução em Prolog foi muito mais rápida que nas
+outras linguagens.
+
+Foi criado um arquivo `kojun.pl` com as funções envolvidas na solução do Kojun e
+um outro arquivo `test_kojun.pl` com os testes para matrizes 6x6, 8x8, 10x10,
+12x12, 14x14 e 17x17. Aqui está a função principal do código em Prolog:
+
+```prolog
+% Função principal para resolver o kojun.
+kojun(Lines) :-
+    maplist(limits(Lines), Lines),
+    check_repetition_rule(Lines),
+    maplist(check_adjacency, Lines),
+    transpose(Lines, Columns),
+    maplist(check_adjacency, Columns),
+    maplist(check_vertical_rule, Columns).
+```
+
+### Como testar?
+
+Para testar em Prolog, basta executar `swipl test_kojun.pl` no diretório
+`/prolog`. O programa irá executar os testes do arquivo `test_kojun.pl` para os
+tamanhos de matrizes citados acima.
+
+### Dificuldades encontradas
+
+A maior dificuldade foi em entender a sintaxe da linguagem, visto que é muito
+diferente das outras linguagens que já havia trabalhado. Após entender a
+sintaxe, foi possível implementar o algoritmo sem muitas dificuldades. Além
+disso, foi possível desenvolver uma suíte de testes assim como em Javascript e
+Clojure.

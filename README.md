@@ -193,3 +193,19 @@ diferente das outras linguagens que já havia trabalhado. Após entender a
 sintaxe, foi possível implementar o algoritmo sem muitas dificuldades. Além
 disso, foi possível desenvolver uma suíte de testes assim como em Javascript e
 Clojure.
+
+## Projeto 4: Solução de desafio lógico em Prolog
+
+O quarto projeto teve por objetivo solucionar o desafio lógico em Prolog deste
+link: https://rachacuca.com.br/logica/problemas/carros-antigos/. O código está
+no arquivo `carros_antigos.pl` da pasta `/prolog`. Para executar, basta rodar
+`swipl carros_antigos.pl` no diretório e depois
+`?- set_prolog_flag(answer_write_options, [max_depth(0)]), solucao(Result).`.
+
+O resultado obtido pela execução foi este:
+
+![output](./docs/output_desafio_lógico.png)
+
+Confere com a solução do site:
+
+![output](./docs/solução_desafio_lógico.png)
